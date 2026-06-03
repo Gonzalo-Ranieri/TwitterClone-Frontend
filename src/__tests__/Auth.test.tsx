@@ -27,7 +27,7 @@ describe('Authentication Flow Tests', () => {
   });
 
   it('allows a user to register successfully', async () => {
-    (client.post as any).mockResolvedValueOnce({
+    vi.mocked(client.post).mockResolvedValueOnce({
       data: {
         token: 'mock-jwt-token',
         id: '123e4567-e89b-12d3-a456-426614174000',
@@ -76,7 +76,7 @@ describe('Authentication Flow Tests', () => {
   });
 
   it('allows a user to log in successfully', async () => {
-    (client.post as any).mockResolvedValueOnce({
+    vi.mocked(client.post).mockResolvedValueOnce({
       data: {
         token: 'mock-jwt-token',
         id: '123e4567-e89b-12d3-a456-426614174000',

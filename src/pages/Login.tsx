@@ -36,7 +36,7 @@ export const Login: React.FC = () => {
       const { token, id, username, email, bio, avatarPlaceholder } = response.data;
       login(token, { id, username, email, bio, avatarPlaceholder });
       navigate('/');
-    } catch (err: any) {
+    } catch (err: any) { // eslint-disable-line @typescript-eslint/no-explicit-any
       if (err.response && err.response.data) {
         setError(typeof err.response.data === 'string' ? err.response.data : 'Credenciales incorrectas');
       } else {

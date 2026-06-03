@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+/* eslint-disable react-refresh/only-export-components */
+import React, { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
 
 export interface User {
   id: string;
@@ -20,37 +21,21 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
-  const [token, setToken] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    // Check if user session exists in localStorage
-    const savedToken = localStorage.getItem('token');
+  const [token, setToken] = useState<string | null>(() => localStorage.getItem('token'));
+  const [user, setUser] = useState<User | null>(() => {
     const savedUser = localStorage.getItem('user');
-
-    if (savedToken && savedUser) {
+    if (savedUser) {
       try {
-        setToken(savedToken);
-        setUser(JSON.parse(savedUser));
-      } catch (e) {
-        // Clear invalid storage
+        return JSON.parse(savedUser);
+      } catch {
         localStorage.removeItem('token');
         localStorage.removeItem('user');
+        return null;
       }
     }
-    setIsLoading(false);
-
-    // Listen for custom logout event (triggered by HTTP 401 interceptor)
-    const handleForceLogout = () => {
-      logout();
-    };
-
-    window.addEventListener('auth-logout', handleForceLogout);
-    return () => {
-      window.removeEventListener('auth-logout', handleForceLogout);
-    };
-  }, []);
+    return null;
+  });
+  const [isLoading] = useState(false);
 
   const login = (newToken: string, newUser: User) => {
     localStorage.setItem('token', newToken);
@@ -65,6 +50,18 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setToken(null);
     setUser(null);
   };
+
+  useEffect(() => {
+    // Listen for custom logout event (triggered by HTTP 401 interceptor)
+    const handleForceLogout = () => {
+      logout();
+    };
+
+    window.addEventListener('auth-logout', handleForceLogout);
+    return () => {
+      window.removeEventListener('auth-logout', handleForceLogout);
+    };
+  }, []);
 
   const isAuthenticated = !!token;
 
