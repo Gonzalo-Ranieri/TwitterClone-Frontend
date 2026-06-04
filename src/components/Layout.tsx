@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useNotifications } from '../context/NotificationContext';
 import client from '../api/client';
 
 interface Suggestion {
@@ -20,6 +21,7 @@ interface SearchResultUser {
 
 export const Layout: React.FC = () => {
   const { user, logout } = useAuth();
+  const { unreadCount } = useNotifications();
   const location = useLocation();
   const navigate = useNavigate();
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
@@ -149,6 +151,17 @@ export const Layout: React.FC = () => {
           <Link to="/" className={`nav-link ${isActive('/') ? 'active' : ''}`}>
             <span className="icon">🏠</span>
             <span className="text">Inicio</span>
+          </Link>
+          <Link to="/notifications" className={`nav-link ${isActive('/notifications') ? 'active' : ''}`}>
+            <span className="icon" style={{ position: 'relative' }}>
+              🔔
+              {unreadCount > 0 && (
+                <span className="notification-badge" data-testid="notification-badge">
+                  {unreadCount}
+                </span>
+              )}
+            </span>
+            <span className="text">Notificaciones</span>
           </Link>
           <Link to="/profile" className={`nav-link ${isActive('/profile') ? 'active' : ''}`}>
             <span className="icon">👤</span>

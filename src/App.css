@@ -1012,4 +1012,101 @@
   }
 }
 
+/* Notification Badge */
+.notification-badge {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  background-color: var(--error); /* Red color badge */
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 700;
+  border-radius: 50%;
+  min-width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4px;
+  box-shadow: 0 0 0 2px var(--bg-color);
+}
+
+/* Notifications Page Layout */
+.notifications-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.notifications-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.notification-card {
+  display: flex;
+  gap: 16px;
+  padding: 16px;
+  border-bottom: 1px solid var(--border-color);
+  transition: background-color 0.2s ease;
+}
+
+.notification-card.unread {
+  background-color: rgba(29, 155, 240, 0.05); /* Light primary tint for unread items */
+}
+
+.notification-card.read {
+  background-color: transparent;
+}
+
+.notification-card:hover {
+  background-color: var(--bg-color-hover);
+}
+
+.notification-icon {
+  font-size: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: var(--bg-color-hover);
+  flex-shrink: 0;
+}
+
+.notification-content-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  justify-content: center;
+}
+
+.notification-message {
+  font-size: 15px;
+  color: var(--text-color);
+  line-height: 1.4;
+}
+
+.notification-time {
+  font-size: 13px;
+  color: var(--text-color-secondary);
+}
+
+.mark-read-btn {
+  background-color: transparent;
+  border: 1px solid var(--border-color);
+  color: var(--primary);
+  font-size: 14px;
+  font-weight: 600;
+  padding: 6px 16px;
+  border-radius: 9999px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.mark-read-btn:hover {
+  background-color: var(--primary-bg);
+}
+
+
 

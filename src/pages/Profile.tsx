@@ -16,7 +16,6 @@ interface UserProfile {
 export const Profile: React.FC = () => {
   const { user, logout } = useAuth();
   const [profileData, setProfileData] = useState<UserProfile | null>(null);
-  const [loading, setLoading] = useState(false);
   
   // Modal states
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -26,13 +25,10 @@ export const Profile: React.FC = () => {
   const fetchProfile = async () => {
     if (!user) return;
     try {
-      setLoading(true);
       const response = await client.get(`/api/users/${user.id}`);
       setProfileData(response.data);
     } catch (error) {
       console.error('Error fetching profile:', error);
-    } finally {
-      setLoading(false);
     }
   };
 
