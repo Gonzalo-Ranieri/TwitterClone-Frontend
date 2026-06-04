@@ -75,7 +75,7 @@ export const Login: React.FC = () => {
               disabled={isSubmitting}
               required
             />
-            <label htmlFor="usernameOrEmail">Nombre de usuario o Email label</label>
+            <label htmlFor="usernameOrEmail">Nombre de usuario o Email</label>
           </div>
 
           <div className="form-group">
@@ -89,7 +89,7 @@ export const Login: React.FC = () => {
               disabled={isSubmitting}
               required
             />
-            <label htmlFor="password">Contraseña label</label>
+            <label htmlFor="password">Contraseña</label>
           </div>
 
           <button type="submit" className="auth-submit-btn" disabled={isSubmitting}>

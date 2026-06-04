@@ -100,7 +100,7 @@ export const Register: React.FC = () => {
               disabled={isSubmitting}
               required
             />
-            <label htmlFor="username">Nombre de usuario label</label>
+            <label htmlFor="username">Nombre de usuario</label>
           </div>
 
           <div className="form-group">
@@ -114,7 +114,7 @@ export const Register: React.FC = () => {
               disabled={isSubmitting}
               required
             />
-            <label htmlFor="email">Correo electrónico label</label>
+            <label htmlFor="email">Correo electrónico</label>
           </div>
 
           <div className="form-group">
@@ -128,7 +128,7 @@ export const Register: React.FC = () => {
               disabled={isSubmitting}
               required
             />
-            <label htmlFor="password">Contraseña label</label>
+            <label htmlFor="password">Contraseña</label>
           </div>
 
           <div className="form-group">
@@ -142,7 +142,7 @@ export const Register: React.FC = () => {
               maxLength={280}
               style={{ minHeight: '80px', resize: 'vertical' }}
             />
-            <label htmlFor="bio">Biografía (opcional) label</label>
+            <label htmlFor="bio">Biografía (opcional)</label>
             <span style={{ fontSize: '11px', color: 'var(--text-color-secondary)', position: 'absolute', right: '12px', bottom: '-18px' }}>
               {bio.length}/280
             </span>

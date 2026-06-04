@@ -113,7 +113,8 @@ export const ReplyModal: React.FC<ReplyModalProps> = ({
                   fontSize: '18px',
                   outline: 'none',
                   resize: 'none',
-                  padding: '4px 0'
+                  padding: '12px 0',
+                  margin: '8px 0'
                 }}
                 data-testid="reply-textarea"
               />
