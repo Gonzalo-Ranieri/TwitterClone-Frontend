@@ -1,11 +1,47 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import client from '../api/client';
+
+interface Suggestion {
+  id: string;
+  username: string;
+  bio?: string;
+  avatarPlaceholder?: string;
+}
 
 export const Layout: React.FC = () => {
   const { user, logout } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
+  const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
+
+  const fetchSuggestions = async () => {
+    try {
+      const response = await client.get('/api/users/suggestions');
+      setSuggestions(response.data);
+    } catch (error) {
+      console.error('Error fetching suggestions:', error);
+    }
+  };
+
+  useEffect(() => {
+    if (user) {
+      fetchSuggestions();
+    }
+  }, [user]);
+
+  const handleFollowSuggestion = async (id: string) => {
+    try {
+      await client.post(`/api/users/${id}/follow`);
+      // Remove followed user from suggestions list
+      setSuggestions((prev) => prev.filter((s) => s.id !== id));
+      // Trigger a custom event to notify Timeline or Profile page to reload/update if necessary
+      window.dispatchEvent(new Event('follow-updated'));
+    } catch (error) {
+      console.error('Error following user suggestion:', error);
+    }
+  };
 
   const handleLogout = () => {
     logout();
@@ -101,6 +137,36 @@ export const Layout: React.FC = () => {
             <span className="trend-category">Tecnología · Tendencia</span>
             <span className="trend-name">#ReactJS</span>
             <span className="trend-posts">84.2K posts</span>
+          </div>
+        </div>
+        <div className="widget-box">
+          <h3>A quién seguir</h3>
+          <div className="suggestions-list">
+            {suggestions.map((sug) => (
+              <div key={sug.id} className="suggestion-item" data-testid={`suggestion-${sug.id}`}>
+                <div className="suggestion-user-info">
+                  <div className="suggestion-avatar">
+                    {sug.username.charAt(0).toUpperCase()}
+                  </div>
+                  <div className="suggestion-name-wrapper">
+                    <span className="suggestion-name">{sug.username}</span>
+                    <span className="suggestion-handle">@{sug.username}</span>
+                  </div>
+                </div>
+                <button
+                  onClick={() => handleFollowSuggestion(sug.id)}
+                  className="follow-btn follow"
+                  data-testid={`follow-sug-btn-${sug.id}`}
+                >
+                  Seguir
+                </button>
+              </div>
+            ))}
+            {suggestions.length === 0 && (
+              <span style={{ fontSize: '14px', color: 'var(--text-color-secondary)' }}>
+                No hay sugerencias
+              </span>
+            )}
           </div>
         </div>
       </aside>
