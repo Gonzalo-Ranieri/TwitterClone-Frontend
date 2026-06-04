@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
 import { useAuth } from '../context/AuthContext';
 import client from '../api/client';
 import ReplyModal from '../components/ReplyModal';
@@ -100,7 +101,7 @@ export const TweetDetail: React.FC = () => {
       // Add quick reply to list
       setReplies((prev) => [...prev, response.data]);
       setQuickReplyText('');
-
+      toast.success('¡Respuesta publicada!');
       // Update main tweet replyCount
       setTweet((prev) => (prev ? { ...prev, replyCount: prev.replyCount + 1 } : null));
     } catch (error) {
@@ -133,9 +134,11 @@ export const TweetDetail: React.FC = () => {
       await client.delete(`/api/tweets/${tweetId}`);
       if (isMain) {
         // Navigate back or to home if we deleted the main tweet
+        toast.success('Tweet eliminado.');
         navigate('/home');
       } else {
         setReplies((prev) => prev.filter((t) => t.id !== tweetId));
+        toast.success('Respuesta eliminada.');
         // Decrement main tweet replyCount
         setTweet((prev) => (prev ? { ...prev, replyCount: Math.max(0, prev.replyCount - 1) } : null));
       }
@@ -181,6 +184,7 @@ export const TweetDetail: React.FC = () => {
           next.delete(authorId);
           return next;
         });
+        toast.success(`Ahora sigues a @${authorUsername}`);
       } else {
         if (!window.confirm(`¿Dejar de seguir a @${authorUsername}?`)) return;
         await client.delete(`/api/users/${authorId}/follow`);
@@ -189,6 +193,7 @@ export const TweetDetail: React.FC = () => {
           next.add(authorId);
           return next;
         });
+        toast.success(`Dejaste de seguir a @${authorUsername}`);
       }
     } catch (error) {
       console.error('Error toggling follow:', error);

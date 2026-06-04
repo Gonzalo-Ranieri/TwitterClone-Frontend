@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { toast } from 'sonner';
 import client from '../api/client';
 
 interface Tweet {
@@ -43,6 +44,7 @@ export const ReplyModal: React.FC<ReplyModalProps> = ({
         parentTweetId: parentTweet.id,
       });
       onSuccess(response.data);
+      toast.success('¡Respuesta publicada!');
       setReplyText('');
       onClose();
     } catch (error) {

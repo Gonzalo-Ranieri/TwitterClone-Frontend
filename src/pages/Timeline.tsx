@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
 import { useAuth } from '../context/AuthContext';
 import client from '../api/client';
 import ReplyModal from '../components/ReplyModal';
@@ -68,6 +69,7 @@ export const Timeline: React.FC = () => {
       // Add the new tweet at the beginning of the list
       setTweets((prev) => [response.data, ...prev]);
       setComposerText('');
+      toast.success('¡Publicado!');
     } catch (error) {
       console.error('Error posting tweet:', error);
     } finally {
@@ -80,6 +82,7 @@ export const Timeline: React.FC = () => {
     try {
       await client.delete(`/api/tweets/${tweetId}`);
       setTweets((prev) => prev.filter((t) => t.id !== tweetId));
+      toast.success('Tweet eliminado.');
     } catch (error) {
       console.error('Error deleting tweet:', error);
     }
@@ -121,6 +124,7 @@ export const Timeline: React.FC = () => {
           next.delete(authorId);
           return next;
         });
+        toast.success(`Ahora sigues a @${authorUsername}`);
       } else {
         if (!window.confirm(`¿Dejar de seguir a @${authorUsername}?`)) return;
         await client.delete(`/api/users/${authorId}/follow`);
@@ -129,6 +133,7 @@ export const Timeline: React.FC = () => {
           next.add(authorId);
           return next;
         });
+        toast.success(`Dejaste de seguir a @${authorUsername}`);
       }
     } catch (error) {
       console.error('Error toggling follow:', error);
