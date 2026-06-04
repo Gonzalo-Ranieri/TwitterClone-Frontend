@@ -5,6 +5,7 @@ import client from '../api/client';
 import Layout from '../components/Layout';
 import Profile from '../pages/Profile';
 import { AuthProvider } from '../context/AuthContext';
+import { NotificationProvider } from '../context/NotificationContext';
 
 vi.mock('../api/client', () => {
   return {
@@ -63,13 +64,15 @@ describe('Search and Modals Integration Tests', () => {
 
       render(
         <AuthProvider>
-          <MemoryRouter initialEntries={['/']}>
-            <Routes>
-              <Route path="/" element={<Layout />}>
-                <Route index element={<div>Timeline Content</div>} />
-              </Route>
-            </Routes>
-          </MemoryRouter>
+          <NotificationProvider>
+            <MemoryRouter initialEntries={['/']}>
+              <Routes>
+                <Route path="/" element={<Layout />}>
+                  <Route index element={<div>Timeline Content</div>} />
+                </Route>
+              </Routes>
+            </MemoryRouter>
+          </NotificationProvider>
         </AuthProvider>
       );
 
@@ -122,13 +125,15 @@ describe('Search and Modals Integration Tests', () => {
 
       render(
         <AuthProvider>
-          <MemoryRouter initialEntries={['/']}>
-            <Routes>
-              <Route path="/" element={<Layout />}>
-                <Route index element={<div>Timeline Content</div>} />
-              </Route>
-            </Routes>
-          </MemoryRouter>
+          <NotificationProvider>
+            <MemoryRouter initialEntries={['/']}>
+              <Routes>
+                <Route path="/" element={<Layout />}>
+                  <Route index element={<div>Timeline Content</div>} />
+                </Route>
+              </Routes>
+            </MemoryRouter>
+          </NotificationProvider>
         </AuthProvider>
       );
 
