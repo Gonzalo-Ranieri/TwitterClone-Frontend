@@ -245,9 +245,29 @@ export const Timeline: React.FC = () => {
           );
         })}
 
-        {loading && (
+        {loading && tweets.length === 0 && (
+          <div className="skeleton-timeline" data-testid="timeline-skeleton">
+            {[1, 2, 3].map((n) => (
+              <div key={n} className="skeleton-card">
+                <div className="skeleton-avatar"></div>
+                <div className="skeleton-content-wrapper">
+                  <div className="skeleton-header">
+                    <div className="skeleton-line skeleton-name"></div>
+                    <div className="skeleton-line skeleton-date"></div>
+                  </div>
+                  <div className="skeleton-line skeleton-body-1"></div>
+                  <div className="skeleton-line skeleton-body-2"></div>
+                  <div className="skeleton-footer">
+                    <div className="skeleton-like"></div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+        {loading && tweets.length > 0 && (
           <div style={{ padding: '20px', textAlign: 'center', color: 'var(--text-color-secondary)' }}>
-            Cargando tweets...
+            Cargando más tweets...
           </div>
         )}
 

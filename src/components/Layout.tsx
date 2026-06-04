@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import client from '../api/client';
@@ -10,11 +10,26 @@ interface Suggestion {
   avatarPlaceholder?: string;
 }
 
+interface SearchResultUser {
+  id: string;
+  username: string;
+  bio?: string;
+  avatarPlaceholder?: string;
+  followedByCurrentUser: boolean;
+}
+
 export const Layout: React.FC = () => {
   const { user, logout } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
+
+  // Search states
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState<SearchResultUser[]>([]);
+  const [searchLoading, setSearchLoading] = useState(false);
+  const [showDropdown, setShowDropdown] = useState(false);
+  const searchContainerRef = useRef<HTMLDivElement>(null);
 
   const fetchSuggestions = async () => {
     try {
@@ -29,17 +44,85 @@ export const Layout: React.FC = () => {
     if (user) {
       fetchSuggestions();
     }
+
+    const handleFollowUpdate = () => {
+      fetchSuggestions();
+    };
+
+    window.addEventListener('follow-updated', handleFollowUpdate);
+    return () => {
+      window.removeEventListener('follow-updated', handleFollowUpdate);
+    };
   }, [user]);
+
+  // Click outside to close dropdown
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (searchContainerRef.current && !searchContainerRef.current.contains(event.target as Node)) {
+        setShowDropdown(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
+  // Debounced search logic
+  useEffect(() => {
+    if (!searchQuery.trim()) {
+      setSearchResults([]);
+      return;
+    }
+
+    const delayDebounceFn = setTimeout(async () => {
+      setSearchLoading(true);
+      try {
+        const response = await client.get(`/api/users/search?q=${encodeURIComponent(searchQuery)}`);
+        setSearchResults(response.data);
+      } catch (error) {
+        console.error('Error searching users:', error);
+      } finally {
+        setSearchLoading(false);
+      }
+    }, 300);
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [searchQuery]);
 
   const handleFollowSuggestion = async (id: string) => {
     try {
       await client.post(`/api/users/${id}/follow`);
-      // Remove followed user from suggestions list
       setSuggestions((prev) => prev.filter((s) => s.id !== id));
-      // Trigger a custom event to notify Timeline or Profile page to reload/update if necessary
       window.dispatchEvent(new Event('follow-updated'));
     } catch (error) {
       console.error('Error following user suggestion:', error);
+    }
+  };
+
+  const handleToggleFollowSearch = async (item: SearchResultUser) => {
+    const isFollowing = item.followedByCurrentUser;
+    try {
+      // Optimistic update
+      setSearchResults((prev) =>
+        prev.map((u) =>
+          u.id === item.id ? { ...u, followedByCurrentUser: !isFollowing } : u
+        )
+      );
+
+      if (isFollowing) {
+        await client.delete(`/api/users/${item.id}/follow`);
+      } else {
+        await client.post(`/api/users/${item.id}/follow`);
+      }
+
+      window.dispatchEvent(new Event('follow-updated'));
+    } catch (error) {
+      console.error('Error toggling follow in search:', error);
+      // Rollback
+      setSearchResults((prev) =>
+        prev.map((u) => (u.id === item.id ? item : u))
+      );
     }
   };
 
@@ -120,11 +203,57 @@ export const Layout: React.FC = () => {
 
       {/* Right Sidebar Widgets */}
       <aside className="widgets">
-        <div className="search-bar-container">
+        <div className="search-bar-container" ref={searchContainerRef}>
           <div className="search-bar">
             <span className="search-icon">🔍</span>
-            <input type="text" placeholder="Buscar usuarios..." disabled />
+            <input
+              type="text"
+              placeholder="Buscar usuarios..."
+              value={searchQuery}
+              onChange={(e) => {
+                setSearchQuery(e.target.value);
+                setShowDropdown(true);
+              }}
+              onFocus={() => setShowDropdown(true)}
+              data-testid="search-input"
+            />
           </div>
+
+          {showDropdown && searchQuery.trim().length > 0 && (
+            <div className="search-dropdown" data-testid="search-dropdown">
+              {searchLoading && (
+                <div className="search-dropdown-message">Buscando...</div>
+              )}
+              {!searchLoading && searchResults.length === 0 && (
+                <div className="search-dropdown-message">No se encontraron resultados</div>
+              )}
+              {!searchLoading && searchResults.length > 0 && (
+                <div className="search-results-list">
+                  {searchResults.map((result) => (
+                    <div key={result.id} className="search-result-item" data-testid={`search-result-item-${result.id}`}>
+                      <div className="suggestion-user-info">
+                        <div className="suggestion-avatar">
+                          {result.username.charAt(0).toUpperCase()}
+                        </div>
+                        <div className="suggestion-name-wrapper">
+                          <span className="suggestion-name">{result.username}</span>
+                          <span className="suggestion-handle">@{result.username}</span>
+                          {result.bio && <span className="search-result-bio">{result.bio}</span>}
+                        </div>
+                      </div>
+                      <button
+                        onClick={() => handleToggleFollowSearch(result)}
+                        className={`follow-btn ${result.followedByCurrentUser ? 'following' : 'follow'}`}
+                        data-testid={`search-follow-btn-${result.id}`}
+                      >
+                        {result.followedByCurrentUser ? 'Siguiendo' : 'Seguir'}
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
         </div>
         <div className="widget-box">
           <h3>Qué está pasando</h3>

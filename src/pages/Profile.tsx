@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import client from '../api/client';
+import UsersModal from '../components/UsersModal';
 
 interface UserProfile {
   id: string;
@@ -16,6 +17,11 @@ export const Profile: React.FC = () => {
   const { user, logout } = useAuth();
   const [profileData, setProfileData] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(false);
+  
+  // Modal states
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalTitle, setModalTitle] = useState('');
+  const [modalType, setModalType] = useState<'followers' | 'following'>('followers');
 
   const fetchProfile = async () => {
     if (!user) return;
@@ -137,13 +143,29 @@ export const Profile: React.FC = () => {
           </div>
 
           <div style={{ display: 'flex', gap: '20px', marginTop: '16px', fontSize: '15px' }}>
-            <span>
+            <span
+              onClick={() => {
+                setModalTitle('Siguiendo');
+                setModalType('following');
+                setIsModalOpen(true);
+              }}
+              style={{ cursor: 'pointer' }}
+              data-testid="open-following-modal"
+            >
               <strong style={{ color: 'var(--text-color)' }} data-testid="following-count">
                 {profileData ? profileData.followingCount : 0}
               </strong>{' '}
               <span style={{ color: 'var(--text-color-secondary)' }}>Siguiendo</span>
             </span>
-            <span>
+            <span
+              onClick={() => {
+                setModalTitle('Seguidores');
+                setModalType('followers');
+                setIsModalOpen(true);
+              }}
+              style={{ cursor: 'pointer' }}
+              data-testid="open-followers-modal"
+            >
               <strong style={{ color: 'var(--text-color)' }} data-testid="followers-count">
                 {profileData ? profileData.followersCount : 0}
               </strong>{' '}
@@ -194,6 +216,14 @@ export const Profile: React.FC = () => {
       <div style={{ padding: '40px 20px', textAlign: 'center', color: 'var(--text-color-secondary)' }}>
         No has publicado ningún post todavía.
       </div>
+      
+      <UsersModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        title={modalTitle}
+        userId={user.id}
+        type={modalType}
+      />
     </div>
   );
 };
