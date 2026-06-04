@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import client from '../api/client';
 import UsersModal from '../components/UsersModal';
@@ -22,7 +22,7 @@ export const Profile: React.FC = () => {
   const [modalTitle, setModalTitle] = useState('');
   const [modalType, setModalType] = useState<'followers' | 'following'>('followers');
 
-  const fetchProfile = async () => {
+  const fetchProfile = useCallback(async () => {
     if (!user) return;
     try {
       const response = await client.get(`/api/users/${user.id}`);
@@ -30,19 +30,16 @@ export const Profile: React.FC = () => {
     } catch (error) {
       console.error('Error fetching profile:', error);
     }
-  };
+  }, [user]);
 
   useEffect(() => {
     fetchProfile();
     // Refresh stats if follows change
-    const handleFollowUpdate = () => {
-      fetchProfile();
-    };
-    window.addEventListener('follow-updated', handleFollowUpdate);
+    window.addEventListener('follow-updated', fetchProfile);
     return () => {
-      window.removeEventListener('follow-updated', handleFollowUpdate);
+      window.removeEventListener('follow-updated', fetchProfile);
     };
-  }, [user]);
+  }, [fetchProfile]);
 
   if (!user) {
     return <div style={{ padding: '20px', color: 'var(--text-color)' }}>No hay sesión activa.</div>;

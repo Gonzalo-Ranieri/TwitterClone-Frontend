@@ -106,9 +106,7 @@ export const NotificationProvider: React.FC<{ children: ReactNode }> = ({ childr
           }
         });
       } catch (err) {
-        if (ctrl.signal.aborted) {
-          console.log('SSE connection aborted manually.');
-        } else {
+        if (!ctrl.signal.aborted) {
           console.error('Fetch Event Source connection failed:', err);
         }
       }
