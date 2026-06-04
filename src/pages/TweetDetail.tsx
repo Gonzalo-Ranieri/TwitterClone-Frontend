@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import { toast } from 'sonner';
 import { useAuth } from '../context/AuthContext';
 import client from '../api/client';
@@ -266,16 +266,31 @@ export const TweetDetail: React.FC = () => {
       <article className="tweet-card primary-tweet-card" style={{ borderBottom: '1px solid var(--border-color)', padding: '16px' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
           <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-            <div className="tweet-avatar" style={{ margin: 0 }}>
+            <Link
+              to={`/profile/${tweet.authorId}`}
+              onClick={(e) => e.stopPropagation()}
+              className="tweet-avatar"
+              style={{ margin: 0, textDecoration: 'none', color: 'inherit' }}
+            >
               {tweet.authorUsername.charAt(0).toUpperCase()}
-            </div>
+            </Link>
             <div style={{ display: 'flex', flexDirection: 'column' }}>
-              <span className="tweet-author-name" style={{ fontSize: '16px', fontWeight: '700' }}>
+              <Link
+                to={`/profile/${tweet.authorId}`}
+                onClick={(e) => e.stopPropagation()}
+                className="tweet-author-name"
+                style={{ fontSize: '16px', fontWeight: '700', textDecoration: 'none', color: 'inherit' }}
+              >
                 {tweet.authorUsername}
-              </span>
-              <span className="tweet-author-handle" style={{ fontSize: '14px', color: 'var(--text-color-secondary)' }}>
+              </Link>
+              <Link
+                to={`/profile/${tweet.authorId}`}
+                onClick={(e) => e.stopPropagation()}
+                className="tweet-author-handle"
+                style={{ fontSize: '14px', color: 'var(--text-color-secondary)', textDecoration: 'none' }}
+              >
                 @{tweet.authorUsername}
-              </span>
+              </Link>
             </div>
           </div>
 
@@ -346,14 +361,15 @@ export const TweetDetail: React.FC = () => {
               className="composer-textarea"
               style={{
                 width: '100%',
-                minHeight: '60px',
+                minHeight: '80px',
                 background: 'transparent',
                 border: 'none',
                 color: 'var(--text-color)',
                 fontSize: '16px',
                 outline: 'none',
                 resize: 'none',
-                padding: '4px 0'
+                padding: '12px 0',
+                margin: '8px 0'
               }}
               data-testid="quick-reply-textarea"
             />
@@ -388,15 +404,34 @@ export const TweetDetail: React.FC = () => {
               data-testid={`reply-card-${reply.id}`}
             >
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                <div className="tweet-avatar" style={{ margin: 0 }}>
+                <Link
+                  to={`/profile/${reply.authorId}`}
+                  onClick={(e) => e.stopPropagation()}
+                  className="tweet-avatar"
+                  style={{ margin: 0, textDecoration: 'none', color: 'inherit' }}
+                >
                   {reply.authorUsername.charAt(0).toUpperCase()}
-                </div>
+                </Link>
               </div>
               <div style={{ flexGrow: 1 }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                   <div className="tweet-author-info">
-                    <span className="tweet-author-name">{reply.authorUsername}</span>
-                    <span className="tweet-author-handle">@{reply.authorUsername}</span>
+                    <Link
+                      to={`/profile/${reply.authorId}`}
+                      onClick={(e) => e.stopPropagation()}
+                      className="tweet-author-name"
+                      style={{ textDecoration: 'none', color: 'inherit' }}
+                    >
+                      {reply.authorUsername}
+                    </Link>
+                    <Link
+                      to={`/profile/${reply.authorId}`}
+                      onClick={(e) => e.stopPropagation()}
+                      className="tweet-author-handle"
+                      style={{ textDecoration: 'none', color: 'inherit' }}
+                    >
+                      @{reply.authorUsername}
+                    </Link>
                     <span className="bullet">·</span>
                     <span className="tweet-date">{formatDate(reply.createdAt)}</span>
                   </div>

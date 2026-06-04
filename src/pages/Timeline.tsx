@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { toast } from 'sonner';
 import { useAuth } from '../context/AuthContext';
 import client from '../api/client';
@@ -223,14 +223,33 @@ export const Timeline: React.FC = () => {
               style={{ cursor: 'pointer' }}
               data-testid={`tweet-${tweet.id}`}
             >
-              <div className="tweet-avatar">
+              <Link
+                to={`/profile/${tweet.authorId}`}
+                onClick={(e) => e.stopPropagation()}
+                className="tweet-avatar"
+                style={{ textDecoration: 'none', color: 'inherit' }}
+              >
                 {tweet.authorUsername.charAt(0).toUpperCase()}
-              </div>
+              </Link>
               <div className="tweet-content-wrapper">
                 <div className="tweet-header">
                   <div className="tweet-author-info">
-                    <span className="tweet-author-name">{tweet.authorUsername}</span>
-                    <span className="tweet-author-handle">@{tweet.authorUsername}</span>
+                    <Link
+                      to={`/profile/${tweet.authorId}`}
+                      onClick={(e) => e.stopPropagation()}
+                      className="tweet-author-name"
+                      style={{ textDecoration: 'none', color: 'inherit' }}
+                    >
+                      {tweet.authorUsername}
+                    </Link>
+                    <Link
+                      to={`/profile/${tweet.authorId}`}
+                      onClick={(e) => e.stopPropagation()}
+                      className="tweet-author-handle"
+                      style={{ textDecoration: 'none', color: 'inherit' }}
+                    >
+                      @{tweet.authorUsername}
+                    </Link>
                     <span className="bullet">·</span>
                     <span className="tweet-date">{formatDate(tweet.createdAt)}</span>
                   </div>

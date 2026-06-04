@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import client from '../api/client';
 
 interface UserItem {
@@ -98,12 +99,31 @@ export const UsersModal: React.FC<UsersModalProps> = ({ isOpen, onClose, title, 
           {users.map((item) => (
             <div key={item.id} className="user-list-item" data-testid={`modal-user-item-${item.id}`}>
               <div className="suggestion-user-info">
-                <div className="suggestion-avatar">
+                <Link
+                  to={`/profile/${item.id}`}
+                  onClick={() => onClose()}
+                  className="suggestion-avatar"
+                  style={{ textDecoration: 'none', color: 'inherit' }}
+                >
                   {item.username.charAt(0).toUpperCase()}
-                </div>
+                </Link>
                 <div className="suggestion-name-wrapper">
-                  <span className="suggestion-name">{item.username}</span>
-                  <span className="suggestion-handle">@{item.username}</span>
+                  <Link
+                    to={`/profile/${item.id}`}
+                    onClick={() => onClose()}
+                    className="suggestion-name"
+                    style={{ textDecoration: 'none', color: 'inherit', fontWeight: 700 }}
+                  >
+                    {item.username}
+                  </Link>
+                  <Link
+                    to={`/profile/${item.id}`}
+                    onClick={() => onClose()}
+                    className="suggestion-handle"
+                    style={{ textDecoration: 'none', color: 'var(--text-color-secondary)' }}
+                  >
+                    @{item.username}
+                  </Link>
                   {item.bio && <span className="user-list-bio">{item.bio}</span>}
                 </div>
               </div>

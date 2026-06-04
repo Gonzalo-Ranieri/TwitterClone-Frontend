@@ -44,6 +44,7 @@ function App() {
             }>
               <Route index element={<Timeline />} />
               <Route path="profile" element={<Profile />} />
+              <Route path="profile/:id" element={<Profile />} />
               <Route path="notifications" element={<NotificationsPage />} />
               <Route path="tweet/:id" element={<TweetDetail />} />
             </Route>
