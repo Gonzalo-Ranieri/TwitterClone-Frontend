@@ -1,92 +1,62 @@
-# Twitter Clone — Frontend
+# Twitter Clone — Frontend (Cliente React/TypeScript)
 
-React + TypeScript + Vite client for the Twitter Clone project.
-
----
-
-## 🛠️ Prerequisites
-
-- **Node.js 20+** and **npm**
-- The **backend API** must be reachable (defaults to `http://localhost:8080`)
+> **📢 Aviso para Evaluadores (The Flock):** Este repositorio forma parte de un sistema distribuido y contiene exclusivamente el cliente React. Para acceder al **Runbook Principal**, las justificaciones de diseño arquitectónico, el seed data y los comandos de orquestación unificada con Docker, por favor diríjase al repositorio orquestador: [https://github.com/Gonzalo-Ranieri/TwitterClone-Backend](https://github.com/Gonzalo-Ranieri/TwitterClone-Backend).
 
 ---
 
-## 🚀 Quick Start (Local Development)
+## Ejecución Aislada del Cliente (Entorno de Desarrollo)
 
-### 1. Install Dependencies
+Los siguientes pasos permiten levantar el cliente React de forma autónoma, de modo que el desarrollador pueda trabajar sobre la interfaz de usuario sin necesidad de levantar el ecosistema Docker completo. Se asume que la API del backend ya está disponible en `http://localhost:8080`.
 
-```bash
-npm install
-```
+### Prerrequisitos
 
-### 2. Configure Environment
+- **Node.js**: Versión mínima 20.x y gestor de paquetes `npm`.
+- La **API del backend** debe estar en ejecución y ser accesible (por defecto en `http://localhost:8080`).
+
+---
+
+### Paso 1 — Configuración de Variables de Entorno
+
+Copie el archivo de plantilla de variables de entorno y edítelo si el servidor backend opera en un host o puerto distinto al predeterminado:
 
 ```bash
 cp .env.example .env
 ```
 
-Edit `.env` if the backend runs on a different host:
+El contenido por defecto del archivo `.env` es el siguiente:
 
 ```
 VITE_API_URL=http://localhost:8080
 ```
 
-### 3. Start the Dev Server
+---
+
+### Paso 2 — Instalación de Dependencias
+
+Instale todas las dependencias del proyecto mediante el gestor de paquetes `npm`:
+
+```bash
+npm install
+```
+
+---
+
+### Paso 3 — Iniciar el Servidor de Desarrollo
+
+Levante el servidor de desarrollo de Vite:
 
 ```bash
 npm run dev
 ```
 
-Open [http://localhost:5173](http://localhost:5173) in your browser.
-
-> **Note:** The backend seed data creates 10 users. All seeded accounts share the password `password123`. You can register a new account from the UI at any time.
+La aplicación estará disponible en [http://localhost:5173](http://localhost:5173).
 
 ---
 
-## 🧪 Testing
+## Suite de Pruebas
 
-Run the full Vitest suite:
+Para ejecutar la suite de pruebas de integración del cliente (Vitest + Testing Library), ejecute el siguiente comando desde la raíz de este directorio:
 
 ```bash
 npm run test
 ```
-
-Build the production bundle (TypeScript type-check included):
-
-```bash
-npm run build
-```
-
----
-
-## 📦 Key Libraries
-
-| Library | Purpose |
-|---|---|
-| `react-router-dom` | Client-side routing (SPA) |
-| `axios` | HTTP client with JWT interceptor |
-| `sonner` | Global toast notifications |
-| `@microsoft/fetch-event-source` | SSE stream with Authorization header support |
-| `@testing-library/react` | Component integration tests |
-| `vitest` | Test runner (Vite-native) |
-
----
-
-## 🗂️ Project Structure
-
-```
-src/
-├── api/            # Axios client with global error interceptor
-├── components/     # Reusable components (Layout, ReplyModal, UsersModal, …)
-├── context/        # AuthContext, NotificationContext (SSE)
-├── pages/          # Route-level pages (Timeline, Profile, TweetDetail, …)
-├── __tests__/      # Vitest integration tests
-├── App.tsx         # Root: routes + Toaster
-└── App.css         # Global design system (tokens, utilities, animations)
-```
-
----
-
-## 🐳 Running via Docker Compose
-
-See the [root README](../README.md) for the full containerized stack instructions.
