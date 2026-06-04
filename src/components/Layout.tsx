@@ -34,6 +34,9 @@ export const Layout: React.FC = () => {
   const [showDropdown, setShowDropdown] = useState(false);
   const searchContainerRef = useRef<HTMLDivElement>(null);
 
+  const [showMobileDropdown, setShowMobileDropdown] = useState(false);
+  const mobileSearchContainerRef = useRef<HTMLDivElement>(null);
+
   const fetchSuggestions = async () => {
     try {
       const response = await client.get('/api/users/suggestions');
@@ -63,6 +66,9 @@ export const Layout: React.FC = () => {
     const handleClickOutside = (event: MouseEvent) => {
       if (searchContainerRef.current && !searchContainerRef.current.contains(event.target as Node)) {
         setShowDropdown(false);
+      }
+      if (mobileSearchContainerRef.current && !mobileSearchContainerRef.current.contains(event.target as Node)) {
+        setShowMobileDropdown(false);
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
@@ -212,6 +218,73 @@ export const Layout: React.FC = () => {
 
       {/* Main Content Area */}
       <main className="main-content">
+        {/* Mobile Search Bar */}
+        <div className="mobile-search-container">
+          <div className="search-bar-container" ref={mobileSearchContainerRef}>
+            <div className="search-bar">
+              <span className="search-icon">🔍</span>
+              <input
+                type="text"
+                placeholder="Buscar usuarios..."
+                value={searchQuery}
+                onChange={(e) => {
+                  setSearchQuery(e.target.value);
+                  setShowMobileDropdown(true);
+                }}
+                onFocus={() => setShowMobileDropdown(true)}
+                data-testid="mobile-search-input"
+              />
+            </div>
+
+            {showMobileDropdown && searchQuery.trim().length > 0 && (
+              <div className="search-dropdown" data-testid="mobile-search-dropdown">
+                {searchLoading && (
+                  <div className="search-dropdown-message">Buscando...</div>
+                )}
+                {!searchLoading && searchResults.length === 0 && (
+                  <div className="search-dropdown-message">No se encontraron resultados</div>
+                )}
+                {!searchLoading && searchResults.length > 0 && (
+                  <div className="search-results-list">
+                    {searchResults.map((result) => (
+                      <div
+                        key={result.id}
+                        className="search-result-item"
+                        data-testid={`mobile-search-result-item-${result.id}`}
+                        onClick={() => {
+                          setShowMobileDropdown(false);
+                          setSearchQuery('');
+                          navigate(`/profile/${result.id}`);
+                        }}
+                      >
+                        <div className="suggestion-user-info">
+                          <div className="suggestion-avatar">
+                            {result.username.charAt(0).toUpperCase()}
+                          </div>
+                          <div className="suggestion-name-wrapper">
+                            <span className="suggestion-name">{result.username}</span>
+                            <span className="suggestion-handle">@{result.username}</span>
+                            {result.bio && <span className="search-result-bio">{result.bio}</span>}
+                          </div>
+                        </div>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleToggleFollowSearch(result);
+                          }}
+                          className={`follow-btn ${result.followedByCurrentUser ? 'following' : 'follow'}`}
+                          data-testid={`mobile-search-follow-btn-${result.id}`}
+                        >
+                          {result.followedByCurrentUser ? 'Siguiendo' : 'Seguir'}
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
         <Outlet />
       </main>
 
@@ -244,7 +317,16 @@ export const Layout: React.FC = () => {
               {!searchLoading && searchResults.length > 0 && (
                 <div className="search-results-list">
                   {searchResults.map((result) => (
-                    <div key={result.id} className="search-result-item" data-testid={`search-result-item-${result.id}`}>
+                    <div
+                      key={result.id}
+                      className="search-result-item"
+                      data-testid={`search-result-item-${result.id}`}
+                      onClick={() => {
+                        setShowDropdown(false);
+                        setSearchQuery('');
+                        navigate(`/profile/${result.id}`);
+                      }}
+                    >
                       <div className="suggestion-user-info">
                         <div className="suggestion-avatar">
                           {result.username.charAt(0).toUpperCase()}
@@ -256,7 +338,10 @@ export const Layout: React.FC = () => {
                         </div>
                       </div>
                       <button
-                        onClick={() => handleToggleFollowSearch(result)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleToggleFollowSearch(result);
+                        }}
                         className={`follow-btn ${result.followedByCurrentUser ? 'following' : 'follow'}`}
                         data-testid={`search-follow-btn-${result.id}`}
                       >

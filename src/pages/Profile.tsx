@@ -52,6 +52,8 @@ export const Profile: React.FC = () => {
   const [modalTitle, setModalTitle] = useState('');
   const [modalType, setModalType] = useState<'followers' | 'following'>('followers');
 
+  const [activeTab, setActiveTab] = useState<'posts' | 'replies'>('posts');
+
   const fetchProfile = useCallback(async () => {
     if (!targetUserId) return;
     try {
@@ -66,7 +68,7 @@ export const Profile: React.FC = () => {
     if (!targetUserId) return;
     try {
       setLoading(true);
-      const response = await client.get(`/api/users/${targetUserId}/tweets?page=${pageNum}&size=10`);
+      const response = await client.get(`/api/users/${targetUserId}/tweets?filter=${activeTab}&page=${pageNum}&size=10`);
       const data = response.data;
       if (append) {
         setTweets((prev) => [...prev, ...data.content]);
@@ -79,7 +81,7 @@ export const Profile: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  }, [targetUserId]);
+  }, [targetUserId, activeTab]);
 
   useEffect(() => {
     fetchProfile();
@@ -94,7 +96,7 @@ export const Profile: React.FC = () => {
     setTweets([]);
     setPage(0);
     fetchUserTweets(0);
-  }, [targetUserId, fetchUserTweets]);
+  }, [targetUserId, activeTab, fetchUserTweets]);
 
   const handleLoadMore = () => {
     const nextPage = page + 1;
@@ -376,27 +378,38 @@ export const Profile: React.FC = () => {
 
       {/* Tabs */}
       <div className="profile-tabs" style={{ display: 'flex', borderBottom: '1px solid var(--border-color)' }}>
-        <button className="profile-tab active" style={{
-          flex: 1,
-          padding: '16px',
-          textAlign: 'center',
-          fontWeight: '700',
-          fontSize: '15px',
-          color: 'var(--text-color)',
-          borderBottom: '4px solid var(--primary)',
-          cursor: 'default'
-        }}>
+        <button
+          onClick={() => setActiveTab('posts')}
+          className={`profile-tab ${activeTab === 'posts' ? 'active' : ''}`}
+          style={{
+            flex: 1,
+            padding: '16px',
+            textAlign: 'center',
+            fontWeight: activeTab === 'posts' ? '700' : '500',
+            fontSize: '15px',
+            color: activeTab === 'posts' ? 'var(--text-color)' : 'var(--text-color-secondary)',
+            borderBottom: activeTab === 'posts' ? '4px solid var(--primary)' : 'none',
+            cursor: 'pointer'
+          }}
+          data-testid="posts-tab"
+        >
           Posts
         </button>
-        <button className="profile-tab" style={{
-          flex: 1,
-          padding: '16px',
-          textAlign: 'center',
-          fontWeight: '500',
-          fontSize: '15px',
-          color: 'var(--text-color-secondary)',
-          cursor: 'not-allowed'
-        }}>
+        <button
+          onClick={() => setActiveTab('replies')}
+          className={`profile-tab ${activeTab === 'replies' ? 'active' : ''}`}
+          style={{
+            flex: 1,
+            padding: '16px',
+            textAlign: 'center',
+            fontWeight: activeTab === 'replies' ? '700' : '500',
+            fontSize: '15px',
+            color: activeTab === 'replies' ? 'var(--text-color)' : 'var(--text-color-secondary)',
+            borderBottom: activeTab === 'replies' ? '4px solid var(--primary)' : 'none',
+            cursor: 'pointer'
+          }}
+          data-testid="replies-tab"
+        >
           Respuestas
         </button>
         <button className="profile-tab" style={{

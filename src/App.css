@@ -1138,6 +1138,8 @@
 }
 
 .primary-tweet-card {
+  display: flex;
+  flex-direction: column;
   border-bottom: 1px solid var(--border-color);
 }
 
@@ -1147,4 +1149,18 @@
 
 .parent-tweet-preview .thread-connector-line {
   background-color: var(--border-color);
+}
+
+/* Mobile Search Bar */
+.mobile-search-container {
+  display: none;
+  padding: 12px 16px;
+  background-color: var(--bg-color);
+  border-bottom: 1px solid var(--border-color);
+}
+
+@media (max-width: 1024px) {
+  .mobile-search-container {
+    display: block;
+  }
 }
