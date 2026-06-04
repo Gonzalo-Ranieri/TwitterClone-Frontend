@@ -8,6 +8,7 @@ import Register from './pages/Register';
 import Timeline from './pages/Timeline';
 import Profile from './pages/Profile';
 import NotificationsPage from './pages/NotificationsPage';
+import TweetDetail from './pages/TweetDetail';
 import './App.css';
 
 function App() {
@@ -29,6 +30,7 @@ function App() {
               <Route index element={<Timeline />} />
               <Route path="profile" element={<Profile />} />
               <Route path="notifications" element={<NotificationsPage />} />
+              <Route path="tweet/:id" element={<TweetDetail />} />
             </Route>
 
             {/* Fallback Redirect */}

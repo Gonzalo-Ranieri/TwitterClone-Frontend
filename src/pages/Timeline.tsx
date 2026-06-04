@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import client from '../api/client';
+import ReplyModal from '../components/ReplyModal';
 
 interface Tweet {
   id: string;
@@ -11,10 +13,13 @@ interface Tweet {
   createdAt: string;
   likeCount: number;
   liked: boolean;
+  replyCount: number;
+  parentTweetId?: string;
 }
 
 export const Timeline: React.FC = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [tweets, setTweets] = useState<Tweet[]>([]);
   const [page, setPage] = useState(0);
   const [hasMore, setHasMore] = useState(false);
@@ -22,6 +27,8 @@ export const Timeline: React.FC = () => {
   const [posting, setPosting] = useState(false);
   const [composerText, setComposerText] = useState('');
   const [unfollowedUserIds, setUnfollowedUserIds] = useState<Set<string>>(new Set());
+  const [replyParent, setReplyParent] = useState<Tweet | null>(null);
+  const [isReplyModalOpen, setIsReplyModalOpen] = useState(false);
 
   const fetchTimeline = async (pageNum: number, append = false) => {
     try {
@@ -128,6 +135,16 @@ export const Timeline: React.FC = () => {
     }
   };
 
+  const handleReplySuccess = (newReply: Tweet) => {
+    setTweets((prev) =>
+      prev.map((t) =>
+        t.id === newReply.parentTweetId
+          ? { ...t, replyCount: t.replyCount + 1 }
+          : t
+      )
+    );
+  };
+
   const formatDate = (dateString: string) => {
     try {
       const date = new Date(dateString);
@@ -194,7 +211,13 @@ export const Timeline: React.FC = () => {
           const isFollowing = !unfollowedUserIds.has(tweet.authorId);
 
           return (
-            <article key={tweet.id} className="tweet-card" data-testid={`tweet-${tweet.id}`}>
+            <article
+              key={tweet.id}
+              className="tweet-card"
+              onClick={() => navigate(`/tweet/${tweet.id}`)}
+              style={{ cursor: 'pointer' }}
+              data-testid={`tweet-${tweet.id}`}
+            >
               <div className="tweet-avatar">
                 {tweet.authorUsername.charAt(0).toUpperCase()}
               </div>
@@ -210,7 +233,10 @@ export const Timeline: React.FC = () => {
                   {/* Actions (Delete or Follow) */}
                   {isOwnTweet ? (
                     <button
-                      onClick={() => handleDeleteTweet(tweet.id)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDeleteTweet(tweet.id);
+                      }}
                       className="tweet-action-btn delete-btn"
                       title="Eliminar tweet"
                       data-testid={`delete-btn-${tweet.id}`}
@@ -219,7 +245,10 @@ export const Timeline: React.FC = () => {
                     </button>
                   ) : (
                     <button
-                      onClick={() => handleToggleFollow(tweet.authorId, tweet.authorUsername)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleToggleFollow(tweet.authorId, tweet.authorUsername);
+                      }}
                       className={`follow-btn ${isFollowing ? 'following' : 'follow'}`}
                       data-testid={`follow-btn-${tweet.authorId}`}
                     >
@@ -232,7 +261,22 @@ export const Timeline: React.FC = () => {
 
                 <div className="tweet-footer">
                   <button
-                    onClick={() => handleToggleLike(tweet)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setReplyParent(tweet);
+                      setIsReplyModalOpen(true);
+                    }}
+                    className="tweet-action-btn reply-btn"
+                    data-testid={`reply-btn-${tweet.id}`}
+                  >
+                    <span className="reply-icon">💬</span>
+                    <span className="reply-count" data-testid={`reply-count-${tweet.id}`}>{tweet.replyCount || 0}</span>
+                  </button>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleToggleLike(tweet);
+                    }}
                     className={`tweet-action-btn like-btn ${tweet.liked ? 'liked' : ''}`}
                     data-testid={`like-btn-${tweet.id}`}
                   >
@@ -288,6 +332,13 @@ export const Timeline: React.FC = () => {
           </div>
         )}
       </div>
+
+      <ReplyModal
+        isOpen={isReplyModalOpen}
+        onClose={() => setIsReplyModalOpen(false)}
+        parentTweet={replyParent}
+        onSuccess={handleReplySuccess}
+      />
     </div>
   );
 };

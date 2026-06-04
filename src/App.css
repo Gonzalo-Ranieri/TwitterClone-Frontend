@@ -1110,3 +1110,28 @@
 
 
 
+/* Reply Threads & Nested Conversations styling */
+.reply-btn:hover {
+  color: var(--primary) !important;
+}
+
+.reply-tweet-card {
+  position: relative;
+  transition: background-color 0.2s ease;
+}
+
+.reply-tweet-card:hover {
+  background-color: var(--bg-color-hover);
+}
+
+.primary-tweet-card {
+  border-bottom: 1px solid var(--border-color);
+}
+
+.inline-composer {
+  border-bottom: 1px solid var(--border-color);
+}
+
+.parent-tweet-preview .thread-connector-line {
+  background-color: var(--border-color);
+}
