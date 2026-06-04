@@ -6,6 +6,8 @@ import { useAuth } from '../context/AuthContext';
 import client from '../api/client';
 import UsersModal from '../components/UsersModal';
 import ReplyModal from '../components/ReplyModal';
+import EditProfileModal from '../components/EditProfileModal';
+import { getAvatarStyle, getBannerStyle, shouldShowInitials } from '../utils/styleHelper';
 
 interface UserProfile {
   id: string;
@@ -13,6 +15,8 @@ interface UserProfile {
   email: string;
   bio?: string;
   avatarPlaceholder?: string;
+  bannerPlaceholder?: string;
+  showEmail?: boolean;
   followersCount: number;
   followingCount: number;
   followedByCurrentUser?: boolean;
@@ -46,13 +50,14 @@ export const Profile: React.FC = () => {
   const [unfollowedUserIds, setUnfollowedUserIds] = useState<Set<string>>(new Set());
   const [replyParent, setReplyParent] = useState<Tweet | null>(null);
   const [isReplyModalOpen, setIsReplyModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
   // Modal states
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalTitle, setModalTitle] = useState('');
   const [modalType, setModalType] = useState<'followers' | 'following'>('followers');
 
-  const [activeTab, setActiveTab] = useState<'posts' | 'replies'>('posts');
+  const [activeTab, setActiveTab] = useState<'posts' | 'replies' | 'likes'>('posts');
 
   const fetchProfile = useCallback(async () => {
     if (!targetUserId) return;
@@ -90,13 +95,15 @@ export const Profile: React.FC = () => {
     return () => {
       window.removeEventListener('follow-updated', fetchProfile);
     };
-  }, [fetchProfile]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [targetUserId]);
 
   useEffect(() => {
     setTweets([]);
     setPage(0);
     fetchUserTweets(0);
-  }, [targetUserId, activeTab, fetchUserTweets]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [targetUserId, activeTab]);
 
   const handleLoadMore = () => {
     const nextPage = page + 1;
@@ -247,9 +254,9 @@ export const Profile: React.FC = () => {
       {/* Profile Banner */}
       <div className="profile-banner" style={{
         height: '200px',
-        background: 'linear-gradient(135deg, var(--primary), #a855f7, #ec4899)',
         width: '100%',
-        position: 'relative'
+        position: 'relative',
+        ...getBannerStyle(profileData?.bannerPlaceholder)
       }}>
       </div>
 
@@ -268,16 +275,16 @@ export const Profile: React.FC = () => {
           height: '130px',
           borderRadius: '50%',
           border: '4px solid var(--bg-color)',
-          background: 'linear-gradient(135deg, #a855f7, var(--primary))',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
           color: '#ffffff',
           fontWeight: '800',
           fontSize: '48px',
-          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)'
+          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+          ...getAvatarStyle(profileData?.avatarPlaceholder)
         }}>
-          {profileData ? profileData.username.charAt(0).toUpperCase() : ''}
+          {shouldShowInitials(profileData?.avatarPlaceholder) && profileData ? profileData.username.charAt(0).toUpperCase() : null}
         </div>
 
         {/* Action Buttons */}
@@ -288,22 +295,43 @@ export const Profile: React.FC = () => {
           minHeight: '60px'
         }}>
           {targetUserId === user.id ? (
-            <button
-              onClick={handleLogoutClick}
-              style={{
-                padding: '8px 16px',
-                border: '1px solid var(--border-color)',
-                borderRadius: '9999px',
-                fontWeight: '700',
-                fontSize: '15px',
-                color: 'var(--text-color)',
-                transition: 'background-color 0.2s'
-              }}
-              onMouseOver={(e) => (e.currentTarget.style.backgroundColor = 'var(--bg-color-hover)')}
-              onMouseOut={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
-            >
-              Cerrar Sesión
-            </button>
+            <div style={{ display: 'flex', gap: '8px' }}>
+              <button
+                onClick={() => setIsEditModalOpen(true)}
+                style={{
+                  padding: '8px 16px',
+                  border: '1px solid var(--border-color)',
+                  borderRadius: '9999px',
+                  fontWeight: '700',
+                  fontSize: '15px',
+                  color: 'var(--text-color)',
+                  transition: 'background-color 0.2s',
+                  cursor: 'pointer'
+                }}
+                onMouseOver={(e) => (e.currentTarget.style.backgroundColor = 'var(--bg-color-hover)')}
+                onMouseOut={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
+                data-testid="edit-profile-btn"
+              >
+                Editar Perfil
+              </button>
+              <button
+                onClick={handleLogoutClick}
+                style={{
+                  padding: '8px 16px',
+                  border: '1px solid var(--border-color)',
+                  borderRadius: '9999px',
+                  fontWeight: '700',
+                  fontSize: '15px',
+                  color: 'var(--text-color)',
+                  transition: 'background-color 0.2s',
+                  cursor: 'pointer'
+                }}
+                onMouseOver={(e) => (e.currentTarget.style.backgroundColor = 'var(--bg-color-hover)')}
+                onMouseOut={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
+              >
+                Cerrar Sesión
+              </button>
+            </div>
           ) : (
             profileData && (
               <button
@@ -412,15 +440,21 @@ export const Profile: React.FC = () => {
         >
           Respuestas
         </button>
-        <button className="profile-tab" style={{
-          flex: 1,
-          padding: '16px',
-          textAlign: 'center',
-          fontWeight: '500',
-          fontSize: '15px',
-          color: 'var(--text-color-secondary)',
-          cursor: 'not-allowed'
-        }}>
+        <button
+          onClick={() => setActiveTab('likes')}
+          className={`profile-tab ${activeTab === 'likes' ? 'active' : ''}`}
+          style={{
+            flex: 1,
+            padding: '16px',
+            textAlign: 'center',
+            fontWeight: activeTab === 'likes' ? '700' : '500',
+            fontSize: '15px',
+            color: activeTab === 'likes' ? 'var(--text-color)' : 'var(--text-color-secondary)',
+            borderBottom: activeTab === 'likes' ? '4px solid var(--primary)' : 'none',
+            cursor: 'pointer'
+          }}
+          data-testid="likes-tab"
+        >
           Me gusta
         </button>
       </div>
@@ -443,9 +477,9 @@ export const Profile: React.FC = () => {
                 to={`/profile/${tweet.authorId}`}
                 onClick={(e) => e.stopPropagation()}
                 className="tweet-avatar"
-                style={{ textDecoration: 'none', color: 'inherit' }}
+                style={{ textDecoration: 'none', color: 'inherit', ...getAvatarStyle(tweet.authorAvatarPlaceholder) }}
               >
-                {tweet.authorUsername.charAt(0).toUpperCase()}
+                {shouldShowInitials(tweet.authorAvatarPlaceholder) ? tweet.authorUsername.charAt(0).toUpperCase() : null}
               </Link>
               <div className="tweet-content-wrapper">
                 <div className="tweet-header">
@@ -587,6 +621,35 @@ export const Profile: React.FC = () => {
         parentTweet={replyParent}
         onSuccess={handleReplySuccess}
       />
+
+      {profileData && (
+        <EditProfileModal
+          isOpen={isEditModalOpen}
+          onClose={() => setIsEditModalOpen(false)}
+          onSuccess={(updatedProfile) => {
+            setProfileData(updatedProfile);
+            setTweets((prev) =>
+              prev.map((t) =>
+                t.authorId === updatedProfile.id
+                  ? {
+                      ...t,
+                      authorUsername: updatedProfile.username,
+                      authorAvatarPlaceholder: updatedProfile.avatarPlaceholder || '',
+                    }
+                  : t
+              )
+            );
+          }}
+          initialProfile={{
+            username: profileData.username,
+            email: profileData.email || '',
+            bio: profileData.bio || '',
+            avatarPlaceholder: profileData.avatarPlaceholder || '',
+            bannerPlaceholder: profileData.bannerPlaceholder || '',
+            showEmail: profileData.showEmail !== false,
+          }}
+        />
+      )}
     </div>
   );
 };

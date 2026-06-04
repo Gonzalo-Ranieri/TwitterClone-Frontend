@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import client from '../api/client';
+import { getAvatarStyle, shouldShowInitials } from '../utils/styleHelper';
 
 interface UserItem {
   id: string;
@@ -104,9 +105,9 @@ export const UsersModal: React.FC<UsersModalProps> = ({ isOpen, onClose, title, 
                   to={`/profile/${item.id}`}
                   onClick={() => onClose()}
                   className="suggestion-avatar"
-                  style={{ textDecoration: 'none', color: 'inherit' }}
+                  style={{ textDecoration: 'none', color: 'inherit', ...getAvatarStyle(item.avatarPlaceholder) }}
                 >
-                  {item.username.charAt(0).toUpperCase()}
+                  {shouldShowInitials(item.avatarPlaceholder) ? item.username.charAt(0).toUpperCase() : null}
                 </Link>
                 <div className="suggestion-name-wrapper">
                   <Link

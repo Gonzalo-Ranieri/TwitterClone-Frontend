@@ -5,6 +5,7 @@ import { toast } from 'sonner';
 import { useAuth } from '../context/AuthContext';
 import client from '../api/client';
 import ReplyModal from '../components/ReplyModal';
+import { getAvatarStyle, shouldShowInitials } from '../utils/styleHelper';
 
 interface Tweet {
   id: string;
@@ -271,9 +272,9 @@ export const TweetDetail: React.FC = () => {
               to={`/profile/${tweet.authorId}`}
               onClick={(e) => e.stopPropagation()}
               className="tweet-avatar"
-              style={{ margin: 0, textDecoration: 'none', color: 'inherit' }}
+              style={{ margin: 0, textDecoration: 'none', color: 'inherit', ...getAvatarStyle(tweet.authorAvatarPlaceholder) }}
             >
-              {tweet.authorUsername.charAt(0).toUpperCase()}
+              {shouldShowInitials(tweet.authorAvatarPlaceholder) ? tweet.authorUsername.charAt(0).toUpperCase() : null}
             </Link>
             <div style={{ display: 'flex', flexDirection: 'column' }}>
               <Link
@@ -349,8 +350,8 @@ export const TweetDetail: React.FC = () => {
       {/* Inline composer for direct replies */}
       {user && (
         <form onSubmit={handlePostQuickReply} className="tweet-composer inline-composer" style={{ borderBottom: '1px solid var(--border-color)', padding: '16px', display: 'flex', gap: '12px' }}>
-          <div className="composer-avatar" style={{ width: '40px', height: '40px', fontSize: '16px' }}>
-            {user.username.charAt(0).toUpperCase()}
+          <div className="composer-avatar" style={{ width: '40px', height: '40px', fontSize: '16px', ...getAvatarStyle(user.avatarPlaceholder) }}>
+            {shouldShowInitials(user.avatarPlaceholder) ? user.username.charAt(0).toUpperCase() : null}
           </div>
           <div style={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
             <textarea
@@ -409,9 +410,9 @@ export const TweetDetail: React.FC = () => {
                   to={`/profile/${reply.authorId}`}
                   onClick={(e) => e.stopPropagation()}
                   className="tweet-avatar"
-                  style={{ margin: 0, textDecoration: 'none', color: 'inherit' }}
+                  style={{ margin: 0, textDecoration: 'none', color: 'inherit', ...getAvatarStyle(reply.authorAvatarPlaceholder) }}
                 >
-                  {reply.authorUsername.charAt(0).toUpperCase()}
+                  {shouldShowInitials(reply.authorAvatarPlaceholder) ? reply.authorUsername.charAt(0).toUpperCase() : null}
                 </Link>
               </div>
               <div style={{ flexGrow: 1 }}>

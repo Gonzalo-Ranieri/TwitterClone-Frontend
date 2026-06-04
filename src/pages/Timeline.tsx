@@ -5,6 +5,7 @@ import { toast } from 'sonner';
 import { useAuth } from '../context/AuthContext';
 import client from '../api/client';
 import ReplyModal from '../components/ReplyModal';
+import { getAvatarStyle, shouldShowInitials } from '../utils/styleHelper';
 
 interface Tweet {
   id: string;
@@ -228,9 +229,9 @@ export const Timeline: React.FC = () => {
                 to={`/profile/${tweet.authorId}`}
                 onClick={(e) => e.stopPropagation()}
                 className="tweet-avatar"
-                style={{ textDecoration: 'none', color: 'inherit' }}
+                style={{ textDecoration: 'none', color: 'inherit', ...getAvatarStyle(tweet.authorAvatarPlaceholder) }}
               >
-                {tweet.authorUsername.charAt(0).toUpperCase()}
+                {shouldShowInitials(tweet.authorAvatarPlaceholder) ? tweet.authorUsername.charAt(0).toUpperCase() : null}
               </Link>
               <div className="tweet-content-wrapper">
                 <div className="tweet-header">

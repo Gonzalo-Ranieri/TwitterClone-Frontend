@@ -28,7 +28,7 @@ client.interceptors.response.use(
   (error) => {
     const status = error.response?.status;
 
-    if (status === 401) {
+    if (status === 401 || status === 403) {
       // Dispatch a custom event to notify the application to log out the user
       window.dispatchEvent(new Event('auth-logout'));
     } else if (status >= 400) {

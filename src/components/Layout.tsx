@@ -4,6 +4,7 @@ import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useNotifications } from '../context/NotificationContext';
 import client from '../api/client';
+import { getAvatarStyle, shouldShowInitials } from '../utils/styleHelper';
 
 interface Suggestion {
   id: string;
@@ -156,12 +157,18 @@ export const Layout: React.FC = () => {
         
         <nav className="nav-links">
           <Link to="/" className={`nav-link ${isActive('/') ? 'active' : ''}`}>
-            <span className="icon">🏠</span>
+            <span className="icon" style={{ display: 'inline-flex', alignItems: 'center' }}>
+              <svg viewBox="0 0 24 24" aria-hidden="true" style={{ width: '24px', height: '24px', fill: 'currentColor' }}>
+                <path d="M12 2.69l5.66 5.66a8 8 0 0 1 2.34 5.65v5c0 .55-.45 1-1 1h-4v-5c0-.55-.45-1-1-1h-2c-.55 0-1 .45-1 1v5H5c-.55 0-1-.45-1-1v-5c0-2.12.84-4.16 2.34-5.65L12 2.69zM12 1a9.96 9.96 0 0 0-7.07 2.93L3.5 5.36c-2.3 2.3-3.5 5.3-3.5 8.3v5.33c0 1.1.9 2 2 2h6c1.1 0 2-.9 2-2v-5h2v5c0 1.1.9 2 2 2h6c1.1 0 2-.9 2-2v-5.33c0-3-.9-6.3-3.5-8.3l-1.43-1.43A9.96 9.96 0 0 0 12 1z" />
+              </svg>
+            </span>
             <span className="text">Inicio</span>
           </Link>
           <Link to="/notifications" className={`nav-link ${isActive('/notifications') ? 'active' : ''}`}>
-            <span className="icon" style={{ position: 'relative' }}>
-              🔔
+            <span className="icon" style={{ position: 'relative', display: 'inline-flex', alignItems: 'center' }}>
+              <svg viewBox="0 0 24 24" aria-hidden="true" style={{ width: '24px', height: '24px', fill: 'currentColor' }}>
+                <path d="M21.163 11.636L19 9.473V6c0-3.86-3.14-7-7-7S5 3.14 5 7v2.473L2.837 11.636c-.42.42-.587 1.05-.436 1.624.152.574.654.99 1.25.99H9v.25c0 1.657 1.343 3 3 3s3-1.343 3-3v-.25h5.35c.595 0 1.097-.416 1.25-.99.15-.574-.017-1.204-.437-1.624zM12 19c-.552 0-1-.448-1-1v-.25h2V18c0 .552-.448 1-1 1zm-7-6.5l1.5-1.5V7c0-2.757 2.243-5 5-5s5 2.243 5 5v4l1.5 1.5H5z" />
+              </svg>
               {unreadCount > 0 && (
                 <span className="notification-badge" data-testid="notification-badge">
                   {unreadCount}
@@ -171,44 +178,33 @@ export const Layout: React.FC = () => {
             <span className="text">Notificaciones</span>
           </Link>
           <Link to="/profile" className={`nav-link ${isActive('/profile') ? 'active' : ''}`}>
-            <span className="icon">👤</span>
+            <span className="icon" style={{ display: 'inline-flex', alignItems: 'center' }}>
+              <svg viewBox="0 0 24 24" aria-hidden="true" style={{ width: '24px', height: '24px', fill: 'currentColor' }}>
+                <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+              </svg>
+            </span>
             <span className="text">Perfil</span>
           </Link>
-          <button onClick={handleLogout} className="nav-link" style={{ width: '100%', textAlign: 'left' }}>
-            <span className="icon">🚪</span>
+          <button onClick={handleLogout} className="nav-link">
+            <span className="icon" style={{ display: 'inline-flex', alignItems: 'center' }}>
+              <svg viewBox="0 0 24 24" aria-hidden="true" style={{ width: '24px', height: '24px', fill: 'currentColor' }}>
+                <path d="M10.09 15.59L11.5 17l5-5-5-5-1.41 1.41L12.67 11H3v2h9.67l-2.58 2.59zM19 3H5c-1.11 0-2 .9-2 2v4h2V5h14v14H5v-4H3v4c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z" />
+              </svg>
+            </span>
             <span className="text">Salir</span>
           </button>
         </nav>
         
         {user && (
-          <div className="user-profile-summary" style={{
-            marginTop: 'auto',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '12px',
-            padding: '12px',
-            borderRadius: '9999px',
-            backgroundColor: 'var(--bg-color-hover)'
-          }}>
-            <div className="avatar-placeholder" style={{
-              width: '40px',
-              height: '40px',
-              borderRadius: '50%',
-              background: 'linear-gradient(135deg, var(--primary), #a855f7)',
-              color: '#ffffff',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontWeight: '700',
-              fontSize: '16px'
-            }}>
-              {user.username.charAt(0).toUpperCase()}
+          <div className="user-profile-summary">
+            <div className="avatar-placeholder" style={getAvatarStyle(user.avatarPlaceholder)}>
+              {shouldShowInitials(user.avatarPlaceholder) ? user.username.charAt(0).toUpperCase() : null}
             </div>
-            <div className="user-info-text" style={{ overflow: 'hidden' }}>
-              <div className="user-display-name" style={{ fontWeight: '700', fontSize: '15px', color: 'var(--text-color)' }}>
+            <div className="user-info-text">
+              <div className="user-display-name">
                 {user.username}
               </div>
-              <div className="user-email" style={{ fontSize: '13px', color: 'var(--text-color-secondary)', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>
+              <div className="user-email">
                 {user.email}
               </div>
             </div>
@@ -258,8 +254,8 @@ export const Layout: React.FC = () => {
                         }}
                       >
                         <div className="suggestion-user-info">
-                          <div className="suggestion-avatar">
-                            {result.username.charAt(0).toUpperCase()}
+                          <div className="suggestion-avatar" style={getAvatarStyle(result.avatarPlaceholder)}>
+                            {shouldShowInitials(result.avatarPlaceholder) ? result.username.charAt(0).toUpperCase() : null}
                           </div>
                           <div className="suggestion-name-wrapper">
                             <span className="suggestion-name">{result.username}</span>
@@ -328,8 +324,8 @@ export const Layout: React.FC = () => {
                       }}
                     >
                       <div className="suggestion-user-info">
-                        <div className="suggestion-avatar">
-                          {result.username.charAt(0).toUpperCase()}
+                        <div className="suggestion-avatar" style={getAvatarStyle(result.avatarPlaceholder)}>
+                          {shouldShowInitials(result.avatarPlaceholder) ? result.username.charAt(0).toUpperCase() : null}
                         </div>
                         <div className="suggestion-name-wrapper">
                           <span className="suggestion-name">{result.username}</span>
@@ -373,8 +369,8 @@ export const Layout: React.FC = () => {
             {suggestions.map((sug) => (
               <div key={sug.id} className="suggestion-item" data-testid={`suggestion-${sug.id}`}>
                 <div className="suggestion-user-info">
-                  <div className="suggestion-avatar">
-                    {sug.username.charAt(0).toUpperCase()}
+                  <div className="suggestion-avatar" style={getAvatarStyle(sug.avatarPlaceholder)}>
+                    {shouldShowInitials(sug.avatarPlaceholder) ? sug.username.charAt(0).toUpperCase() : null}
                   </div>
                   <div className="suggestion-name-wrapper">
                     <span className="suggestion-name">{sug.username}</span>
