@@ -1,4 +1,5 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { MemoryRouter } from 'react-router-dom';
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 import client from '../api/client';
 import Timeline from '../pages/Timeline';
@@ -65,9 +66,11 @@ describe('Timeline Component Integration Tests', () => {
 
   it('renders tweets from the timeline successfully', async () => {
     render(
-      <AuthProvider>
-        <Timeline />
-      </AuthProvider>
+      <MemoryRouter>
+        <AuthProvider>
+          <Timeline />
+        </AuthProvider>
+      </MemoryRouter>
     );
 
     // Verify timeline fetch is called
@@ -105,9 +108,11 @@ describe('Timeline Component Integration Tests', () => {
     });
 
     render(
-      <AuthProvider>
-        <Timeline />
-      </AuthProvider>
+      <MemoryRouter>
+        <AuthProvider>
+          <Timeline />
+        </AuthProvider>
+      </MemoryRouter>
     );
 
     // Wait for initial render
@@ -138,9 +143,11 @@ describe('Timeline Component Integration Tests', () => {
     vi.mocked(client.delete).mockResolvedValueOnce({});
 
     render(
-      <AuthProvider>
-        <Timeline />
-      </AuthProvider>
+      <MemoryRouter>
+        <AuthProvider>
+          <Timeline />
+        </AuthProvider>
+      </MemoryRouter>
     );
 
     // Find and click like button on tweet-1 (initially not liked, count = 5)
@@ -174,9 +181,11 @@ describe('Timeline Component Integration Tests', () => {
     vi.spyOn(window, 'confirm').mockReturnValue(true);
 
     render(
-      <AuthProvider>
-        <Timeline />
-      </AuthProvider>
+      <MemoryRouter>
+        <AuthProvider>
+          <Timeline />
+        </AuthProvider>
+      </MemoryRouter>
     );
 
     const followBtn = await screen.findByTestId('follow-btn-user-456');
@@ -197,5 +206,26 @@ describe('Timeline Component Integration Tests', () => {
       expect(client.post).toHaveBeenCalledWith('/api/users/user-456/follow');
     });
     expect(followBtn).toHaveTextContent('Siguiendo');
+  });
+
+  it('opens the reply modal when clicking the reply button', async () => {
+    render(
+      <MemoryRouter>
+        <AuthProvider>
+          <Timeline />
+        </AuthProvider>
+      </MemoryRouter>
+    );
+
+    // Find and click reply button on tweet-1
+    const replyButton = await screen.findByTestId('reply-btn-tweet-1');
+    fireEvent.click(replyButton);
+
+    // Check that the reply modal is opened and displays parent username preview
+    expect(screen.getByTestId('reply-modal')).toBeInTheDocument();
+    expect(screen.getByText('Responder a @otheruser')).toBeInTheDocument();
+
+    // Check character count is present
+    expect(screen.getAllByText('0 / 280').length).toBeGreaterThanOrEqual(1);
   });
 });
