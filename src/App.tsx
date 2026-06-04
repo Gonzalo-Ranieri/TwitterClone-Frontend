@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { Toaster } from 'sonner';
 import { AuthProvider } from './context/AuthContext';
 import { NotificationProvider } from './context/NotificationContext';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -15,6 +16,20 @@ function App() {
   return (
     <AuthProvider>
       <NotificationProvider>
+        <Toaster
+          position="bottom-center"
+          richColors
+          closeButton
+          toastOptions={{
+            duration: 4000,
+            style: {
+              borderRadius: '12px',
+              fontFamily: 'var(--font-family, Inter, sans-serif)',
+              fontSize: '14px',
+              fontWeight: 500,
+            },
+          }}
+        />
         <BrowserRouter>
           <Routes>
             {/* Public Auth Routes */}
