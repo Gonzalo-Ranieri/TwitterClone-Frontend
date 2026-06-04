@@ -189,12 +189,22 @@ describe('Search and Modals Integration Tests', () => {
             }
           });
         }
+        if (url.includes('/api/users/user-123/tweets')) {
+          return Promise.resolve({
+            data: {
+              content: [],
+              last: true
+            }
+          });
+        }
         return Promise.reject(new Error('Unknown url: ' + url));
       });
 
       render(
         <AuthProvider>
-          <Profile />
+          <MemoryRouter>
+            <Profile />
+          </MemoryRouter>
         </AuthProvider>
       );
 

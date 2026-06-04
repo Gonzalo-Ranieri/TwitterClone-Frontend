@@ -20,6 +20,7 @@ describe('Notifications Integration Tests', () => {
     email: 'test@example.com',
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let onMessageCallback: any = null;
 
   beforeEach(() => {

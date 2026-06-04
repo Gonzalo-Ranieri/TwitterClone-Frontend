@@ -50,9 +50,9 @@ describe('Authentication Flow Tests', () => {
     );
 
     // Enter values
-    fireEvent.change(screen.getByLabelText(/Nombre de usuario label/i), { target: { value: 'newuser' } });
-    fireEvent.change(screen.getByLabelText(/Correo electrónico label/i), { target: { value: 'newuser@example.com' } });
-    fireEvent.change(screen.getByLabelText(/Contraseña label/i), { target: { value: 'password123' } });
+    fireEvent.change(screen.getByLabelText(/Nombre de usuario/i), { target: { value: 'newuser' } });
+    fireEvent.change(screen.getByLabelText(/Correo electrónico/i), { target: { value: 'newuser@example.com' } });
+    fireEvent.change(screen.getByLabelText(/Contraseña/i), { target: { value: 'password123' } });
     fireEvent.change(screen.getByLabelText(/Biografía/i), { target: { value: 'Hello world' } });
 
     // Submit
@@ -98,7 +98,7 @@ describe('Authentication Flow Tests', () => {
 
     // Enter values
     fireEvent.change(screen.getByLabelText(/Nombre de usuario o Email/i), { target: { value: 'loginuser' } });
-    fireEvent.change(screen.getByLabelText(/Contraseña label/i), { target: { value: 'password123' } });
+    fireEvent.change(screen.getByLabelText(/Contraseña/i), { target: { value: 'password123' } });
 
     // Submit
     fireEvent.click(screen.getByRole('button', { name: /Iniciar Sesión/i }));
