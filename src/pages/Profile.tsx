@@ -1,8 +1,46 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
+import client from '../api/client';
+
+interface UserProfile {
+  id: string;
+  username: string;
+  email: string;
+  bio?: string;
+  avatarPlaceholder?: string;
+  followersCount: number;
+  followingCount: number;
+}
 
 export const Profile: React.FC = () => {
   const { user, logout } = useAuth();
+  const [profileData, setProfileData] = useState<UserProfile | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  const fetchProfile = async () => {
+    if (!user) return;
+    try {
+      setLoading(true);
+      const response = await client.get(`/api/users/${user.id}`);
+      setProfileData(response.data);
+    } catch (error) {
+      console.error('Error fetching profile:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchProfile();
+    // Refresh stats if follows change
+    const handleFollowUpdate = () => {
+      fetchProfile();
+    };
+    window.addEventListener('follow-updated', handleFollowUpdate);
+    return () => {
+      window.removeEventListener('follow-updated', handleFollowUpdate);
+    };
+  }, [user]);
 
   if (!user) {
     return <div style={{ padding: '20px', color: 'var(--text-color)' }}>No hay sesión activa.</div>;
@@ -86,7 +124,7 @@ export const Profile: React.FC = () => {
           </p>
 
           <p style={{ fontSize: '15px', color: 'var(--text-color)', lineHeight: '1.4', margin: '0 0 12px 0' }}>
-            {user.bio || 'Sin biografía todavía.'}
+            {profileData ? profileData.bio : (user.bio || 'Sin biografía todavía.')}
           </p>
 
           <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap', fontSize: '14px', color: 'var(--text-color-secondary)' }}>
@@ -100,11 +138,15 @@ export const Profile: React.FC = () => {
 
           <div style={{ display: 'flex', gap: '20px', marginTop: '16px', fontSize: '15px' }}>
             <span>
-              <strong style={{ color: 'var(--text-color)' }}>0</strong>{' '}
+              <strong style={{ color: 'var(--text-color)' }} data-testid="following-count">
+                {profileData ? profileData.followingCount : 0}
+              </strong>{' '}
               <span style={{ color: 'var(--text-color-secondary)' }}>Siguiendo</span>
             </span>
             <span>
-              <strong style={{ color: 'var(--text-color)' }}>0</strong>{' '}
+              <strong style={{ color: 'var(--text-color)' }} data-testid="followers-count">
+                {profileData ? profileData.followersCount : 0}
+              </strong>{' '}
               <span style={{ color: 'var(--text-color-secondary)' }}>Seguidores</span>
             </span>
           </div>
